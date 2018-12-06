@@ -1,0 +1,16 @@
+/*reset*/
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td,button{margin:0;padding:0;-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;}
+table{border-collapse:collapse;border-spacing:0;}
+fieldset,img,input,button,video,textarea,div{border:0;outline: none;}
+img{vertical-align: top;}
+li{list-style: none;}
+h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}
+a{text-decoration: none; color:#394246;}
+em,i{font-style:normal;}
+[v-cloak]{display: none !important;}
+.class_{-webkit-tap-highlight-color:transparent;}
