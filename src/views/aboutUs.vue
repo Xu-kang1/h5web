@@ -4,12 +4,12 @@
     <div class="titleText"><span class="left_icon"></span><span>{{text_}}</span></div>
   </div>
   <div class="mask">
-    <mt-header fixed title="关于我们">
+    <!-- <mt-header fixed title="关于我们">
       <router-link to="" @click.native="goBack" slot="left">
           <mt-button icon="back"></mt-button>
       </router-link>
-    </mt-header>
-    <div class="text">{{textArea}}</div>
+    </mt-header> -->
+    <div v-html="textArea" class="text">{{textArea}}</div>
   </div>
 </div>
 </template>
@@ -19,24 +19,30 @@ export default {
     return {
       tag: '',
       text_: '星美贷',
-      textArea: '星美贷作为一站式智能借款平台，旨在为用户提供多维度，高通过率的借款产品。平台甄选百余家优质低息平台进行合作，为用户打造安全的借款环境，用户可以结合自身的需求选择合适的借款产品。'
+      textArea: '<p>星美贷作为一站式智能借款平台，旨在为用户提供多维度，高通过率的借款产品。平台甄选百余家优质低息平台进行合作，为用户打造安全的借款环境，用户可以结合自身的需求选择合适的借款产品。使用中如有疑问，欢迎添加客服微信或拨打。</p><p style="text-indent:0;">客服微信：luckydoggy007 ,客服电话：13157175281。</p>'
     }
+  },
+  beforeMount () {
+    document.querySelector('#app').style.cssText = 'margin-top:0;'
+    document.title = '关于我们'
   },
   mounted () {
     this.tag = location.href.search('tag=1')
     if (this.tag === -1) {
       this.text_ = '防爆专家'
-      this.textArea = '防爆专家是一款通讯录隐私保护工具，用户可以通过“一键包装”功能，实现快速伪装本地通讯录联系人，避免用户在使用一些app时，被动进行真实通讯录的授权。包装前会对通讯录进行本地备份，并支持根据备份记录进行一键还原。做到即用即改，时时还原。'
+      this.textArea = '<p>防爆专家是一款通讯录隐私保护工具，用户可以通过“一键包装”功能，实现快速伪装本地通讯录联系人，避免用户在使用一些app时，被动进行真实通讯录的授权。包装前会对通讯录进行本地备份，并支持根据备份记录进行一键还原。做到即用即改，时时还原。使用中如有疑问，欢迎添加客服微信或拨打。</p><p style="text-indent:0;">客服微信：moneyonmyway ,客服电话：13157175281。</p>'
     }
   },
   methods: {
     goBack () {
       if (this.tag !== -1) {
-        this.$router.push({path: '/perCenter_'})
+//      this.$router.push({path: '/perCenter_'})
+        this.$router.go(-1)
       } else {
         this.text_ = '防爆专家'
-        this.textArea = '防爆专家是一款通讯录隐私保护工具，用户可以通过“一键包装”功能，实现快速伪装本地通讯录联系人，避免用户在使用一些app时，被动进行真实通讯录的授权。包装前会对通讯录进行本地备份，并支持根据备份记录进行一键还原。做到即用即改，时时还原。'
-          this.$router.push({path: '/perCenter'})
+        this.textArea = '<p>防爆专家是一款通讯录隐私保护工具，用户可以通过“一键包装”功能，实现快速伪装本地通讯录联系人，避免用户在使用一些app时，被动进行真实通讯录的授权。包装前会对通讯录进行本地备份，并支持根据备份记录进行一键还原。做到即用即改，时时还原。使用中如有疑问，欢迎添加客服微信或拨打。</p><p style="text-indent:0;">客服微信：moneyonmyway ,客服电话：13157175281。</p>'
+//        this.$router.push({path: '/perCenter'})
+          this.$router.go(-1)
       }
     }
   }

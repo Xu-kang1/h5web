@@ -1,7 +1,7 @@
 <template>
     <!-- 模块对应帖子 -->
     <div class="page">
-        <mt-header fixed :title="tribuneModuleModel.moduleName">
+        <mt-header v-if="showHdader" fixed :title="tribuneModuleModel.moduleName">
             <router-link to="" tag='li' @click.native='goBack' slot="left">
                 <mt-button icon="back"></mt-button>
             </router-link>
@@ -28,7 +28,7 @@
                             <img v-show="i<3" v-for="(item, i) in arrImg[index]" :key="item.id" :src="item" alt="">
                         </div>
                         <div class="userInfo">
-                            <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+list.userIcon" alt="" class="user">
+                            <img :src="list.userIcon" alt="" class="user">
                             <div class="text">{{list.userName}}<span>#{{list.moduleName}}#</span></div>
                         </div>
                     </div>
@@ -55,8 +55,13 @@ export default {
             tag:'',
             num: 1,
             pageSize:10,
-            loading :true
+            loading :true,
+            showHdader: false
         }
+    },
+    beforeCreate () {
+        document.querySelector('#app').style.cssText = 'margin-top:0;'
+        document.title = ''
     },
     created () {
         this.$nextTick(() => {
@@ -64,6 +69,7 @@ export default {
         })
     },
     mounted () {
+        this.getTitle()
         this.moduleId = this.$route.query.moduleId
         // this.getData()
         this.getParmas()
@@ -79,6 +85,7 @@ export default {
                 pageSize: this.pageSize
             }).then(res => {
                 this.tribuneModuleModel = res.data.data.tribuneModuleModel
+                document.title = this.tribuneModuleModel.moduleName
                let arr = [], arrPic =[]
                 res.data.data.topicList.forEach((element, index) => {
                     arr1[index] = element
@@ -117,14 +124,24 @@ export default {
                 topicId: this.lists[index].topicId
             }).then(res => {})
             // console.log(this.topicList[index].topicId)
-            this.$router.push({path: '/mainNote', query: {topicId: this.lists[index].topicId}})
+            let userAgent = navigator.userAgent.toLowerCase()
+            if (userAgent.indexOf('app/android') != -1) {
+                    this.$router.push({path: '/mainNote_', query: {topicId: this.lists[index].topicId}})
+                } else {
+                    this.$router.push({path: '/mainNote', query: {topicId: this.lists[index].topicId}})
+            }
         },
         // 返回首页
         goBack () {
-            if (this.tag === '2') {
+            if (this.tag == '2') {
                 this.$router.push({path: '/showMore'})
             } else {
-                this.$router.push({path: '/forum'})
+                let userAgent = navigator.userAgent.toLowerCase()
+                if (userAgent.indexOf('app/android') != -1) {
+                        this.$router.push({path: '/forum_?'+sessionStorage.getItem('url')})
+                    } else {
+                        this.$router.push({path: '/forum'})
+                }
             }
         },
         loadMore() {
@@ -135,7 +152,7 @@ export default {
                 this.getData()
             }, 500)
         },
-         getParmas () {
+        getParmas () {
             if (location.href.split('?')[1] !== undefined) {
                 let URLParams = []
                 let params = location.href.split('?')[1].split('&')
@@ -146,6 +163,16 @@ export default {
                 // 节点
                 this.tag = URLParams['tag']
             } 
+        },
+        // 获取title
+        getTitle () {
+            document.title = ''
+            let userAgent = navigator.userAgent.toLowerCase()
+            if (userAgent.indexOf('app/android') != -1) {
+                this.showHdader = false
+            } else {
+                this.showHdader = true
+            }
         }
     }
 }

@@ -42,7 +42,7 @@
                             <img v-show="i<3" v-for="(item, i) in arrImg[index]" :key="item.id" :src="item" alt="">
                         </div>
                         <div class="userInfo">
-                            <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+list.userIcon" alt="" class="user">
+                            <img :src="list.userIcon" alt="" class="user">
                             <div class="text">{{list.userName}}<span>#{{list.moduleName}}#</span></div>
                         </div>
                     </div>
@@ -246,18 +246,21 @@ header{
     height: 1rem;
     margin-top:.01rem;
     padding: 0 .12rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    // display: flex;
+    // align-items: center;
+    // justify-content: space-between;
     .bgColor();
     .nav_list{
-        width:.84rem;
+        width:23%;
         height:.68rem;
         border-radius: .06rem;
         position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        margin: .16rem 1%;
+        // margin-right:2%;
+        float: left;
+        // display: flex;
+        // align-items: center;
+        // justify-content: center;
         img{
             display: block;
             // opacity: 0.8;
@@ -268,13 +271,20 @@ header{
             height:100%;
         }
         .text_{
+            width:100%;
             position: absolute;
             z-index:1;
             font-weight:600;
             font-size:.13rem;
-            line-height: 100%;
+            line-height: .68rem;
             color:#ffffff;
         }
+    }
+    .nav_list:nth-child(1){
+        margin-left:0;
+    }
+    .nav_list:last-child{
+        margin-right:0;
     }
 }
 .contain{

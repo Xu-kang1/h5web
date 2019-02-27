@@ -1,10 +1,10 @@
 <template>
     <div class="page">
-        <mt-header fixed title="发帖">
+        <!-- <mt-header fixed title="发帖">
             <router-link to="" tag='li' @click.native='goBack' slot="left">
                 <mt-button icon="back"></mt-button>
             </router-link>
-        </mt-header>
+        </mt-header> -->
         <div class="main">
             <div class="title" @click="showAsheet">
                 <div class="left">
@@ -64,7 +64,7 @@ export default {
             title_: '',
             mainText: '',
             select: '',
-            userId: localStorage.getItem('userId'),
+            userId: sessionStorage.getItem('userId'),
             //
             stop: true,
             //
@@ -92,6 +92,13 @@ export default {
                 return true
             }
         }
+    },
+    beforeCreate () {
+        document.querySelector('#app').style.cssText = 'margin-top:0;'
+        document.title = ''
+    },
+    beforeMount () {
+        document.title = '发帖'
     },
     mounted () {
 
@@ -150,8 +157,8 @@ export default {
         },
         // 发帖
         postMsg () {
-            if (this.userId === '') {
-                window.xingMeiDai.login()
+            if (this.userId == '') {
+                window.xingMeiDai.appLogin()
             } else if (this.index === '') {
                 Toast({
                     message: '请选择对应模块',
@@ -198,7 +205,8 @@ export default {
                             })
                         }
                         setTimeout(() => {
-                            this.$router.push({path: '/forum_'})
+                            this.$router.go(-1)
+                            // this.$router.push({path: '/forum_'})
                         }, 1500)
                     })
                 } else {
@@ -219,7 +227,8 @@ export default {
         },
         confirm () {
             this.show = false
-            this.$router.push({path: '/forum_'})
+            // this.$router.push({path: '/forum_'})
+            this.$router.go(-1)
         },
         // 显示底部弹窗
         showAsheet () {
@@ -391,7 +400,7 @@ header{
         .imgBox{
             display: inline-block;
             position: relative;
-            float:left;
+            float: left;
             width:.78rem;
             height:.78rem;
             margin: .1rem .1rem 0 0;

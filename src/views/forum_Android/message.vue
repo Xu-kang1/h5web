@@ -1,10 +1,10 @@
 <template>
     <div class="myMsg">
-        <mt-header fixed title="我的消息">
+        <!-- <mt-header fixed title="我的消息">
             <router-link to="" tag='li' @click.native='goBack' slot="left">
                 <mt-button icon="back"></mt-button>
             </router-link>
-        </mt-header>
+        </mt-header> -->
         <div class="fixedTab">
             <div
             v-for="(list, index) in tabText"
@@ -25,7 +25,7 @@
             class="list_">
                 <div class="userInfo">
                     <div class="info msg_icon">
-                        <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+list.userIcon" alt="" class="user">
+                        <img :src="list.userIcon" alt="" class="user">
                         <div class="text name_">{{list.userName}}</div>
                     </div>
                     <div class="time">{{timeComputed[index]}}</div>
@@ -40,7 +40,7 @@
                 <div class="titleName">{{list.topicTitle}}</div>
                 <div class="userInfo">
                     <div class="info">
-                        <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+list.userIcon" alt="" class="user">
+                        <img :src="list.userIcon" alt="" class="user">
                         <div class="text">{{list.userName}}&nbsp;</div>
                         <div class="time">• {{timeComputed[index]}}</div>
                     </div>
@@ -74,24 +74,29 @@ export default {
             post: '',
             timeComputed: [],
             showMsg: true,
-            userId: localStorage.getItem('userId'),
+            userId: sessionStorage.getItem('userId'),
             // 我的消息
             myMsg: ''
         }
     },
+    beforeCreate () {
+        document.querySelector('#app').style.cssText = 'margin-top:0;'
+        document.title = ''
+    },
     beforeMount () {
+        document.title = '我的消息'
         // 请求数据，没有数据
     },
     mounted () {
         this.getMsg()
         // this.getPost()
-        let _this = this
         // window.addEventListener('scroll',  _this.handleScroll, true)
     },
     methods: {
         // 返回论坛
         goBack () {
-            this.$router.push({path: '/forum_'})
+            // this.$router.push({path: '/forum_'})
+            this.$router.go(-1)
         },
         // 切换tab
         tab (index) {
@@ -165,7 +170,7 @@ export default {
                 this.timeComputed.push(time)
             })
             console.log(this.timeComputed)
-        },
+        }
     }
 }
 </script>

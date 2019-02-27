@@ -1,26 +1,29 @@
 <template>
     <div>
-        <!-- <mt-header fixed title="借款">
-            <router-link to="" tag='li' @click.native='goBack' slot="left">
+        <mt-header fixed title="火爆推荐" v-if="showHeader">
+            <router-link to="" tag='li' @click.native='handleBack' slot="left">
+                <mt-button icon="back"></mt-button>
             </router-link>
-        </mt-header> -->
-         <swiper v-if="urlData.length>=1" class="nav" :options="swiperOption" ref="mySwiper">
-            <swiper-slide v-for="item in urlData" :key="item.id">
-                <img class="img" :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+item.url">
-            </swiper-slide>
-            <div class="swiper-pagination" slot="pagination"></div>
-        </swiper>
-        <div class="container">
-            <div class="title">火爆推荐</div>
-            <div class="list" v-for="(list, index) in lists" :key="list.id">
-                <div class="icon_title">
-                    <span class="icon" :style="{backgroundImage:'url(http://www.xingmeidai.com/portal/file/downloadImage?n=' + list.url + ')'}"></span><span class="name">{{list.name}}</span><span v-for="item in lists[index].label.split('/')" :key="item.id" class="cell">{{item}}</span>
+        </mt-header>
+        <div class="mainBox" v-if="showList">
+            <swiper v-if="urlData.length>=1" class="nav" :options="swiperOption" ref="mySwiper">
+                <swiper-slide v-for="item in urlData" :key="item.id">
+                    <img class="img" :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+item.url">
+                </swiper-slide>
+                <div class="swiper-pagination" slot="pagination"></div>
+            </swiper>
+            <div class="container">
+                <div class="title">火爆推荐</div>
+                <div class="list" v-for="(list, index) in lists" :key="list.id">
+                    <div class="icon_title">
+                        <span class="icon" :style="{backgroundImage:'url(http://www.xingmeidai.com/portal/file/downloadImage?n=' + list.url + ')'}"></span><span class="name">{{list.name}}</span><span v-show="item!=''" v-for="item in lists[index].label.split('/')" :key="item.id" class="cell">{{item}}</span>
+                    </div>
+                    <div class="information">
+                        <div class="text"><span>可借额度(元)：</span><span class="price">{{list.min}}-{{list.max}}</span></div>
+                        <div class="text bottom"><span>期限：{{list.termMin}}~{{list.termMax}}天</span><span class="time">{{list.paymentDate}}放款</span></div>
+                    </div>
+                    <div @click="goApply(index)" class="btn">立即申请</div>
                 </div>
-                <div class="information">
-                    <div class="text"><span>可借额度(元)：</span><span class="price">{{list.min}}-{{list.max}}</span></div>
-                    <div class="text bottom"><span>期限：{{list.termMin}}~{{list.termMax}}天</span><span class="time">{{list.paymentDate}}放款</span></div>
-                </div>
-                <div @click="goApply(index)" class="btn">立即申请</div>
             </div>
         </div>
     </div>
@@ -36,9 +39,13 @@ export default {
     },
     data () {
         return {
+            showList: true,
+            urlWeb:'',
             lists: null,
             urlData: '',
             channelCode: '',
+            fromApp: '',
+            showHeader: true,
             mobile: null,
             swiperOption: {
                 loop: true,
@@ -64,8 +71,17 @@ export default {
     },
     mounted () {
         this.getList()
-        this.getBanner()     
-        document.querySelector('#app').style.marginTop = 0
+        this.getBanner()
+        if (this.fromApp ==='app') {
+            this.showHeader = false
+            document.querySelector('#app').style.marginTop = 0
+            try {
+                window.webkit.messageHandlers.showTitleBar.postMessage('火爆推荐')
+            } catch (err) {
+                window.promotion.showTitleBar('火爆推荐')
+            }
+        }
+        // document.querySelector('#app').style.marginTop = 0
     },
     methods: {
         // 获取页面参数
@@ -79,6 +95,7 @@ export default {
             // 节点
             this.channelCode = URLParams['channelCode']
             this.mobile = URLParams['mobile']
+            this.fromApp = URLParams['from']
             axios.post('/meimi/index/autoRegister', {
                 channelCode: this.channelCode,
                 mobile: this.mobile
@@ -88,6 +105,9 @@ export default {
         getBanner () {
             axios.get('/meimi/index/banner').then(res => {
                 this.urlData = res.data.data
+                if (this.urlData.length==1) {
+                    this.swiperOption.loop = false
+                }
             })
         },
         // 获取产品列表
@@ -105,8 +125,17 @@ export default {
                 productId: this.lists[index].id,
                 channelCode: this.channelCode
             }).then(res => {
+                this.showList = false
+                // this.lists[index].target
                   location.href = this.lists[index].target
             })
+        },
+        handleBack() {
+            // try {
+            //     window.webkit.messageHandlers.back.postMessage('')
+            // } catch (err) {
+            //     window.promotion.back()
+            // }
         }
     }
 }
@@ -116,6 +145,7 @@ export default {
     background:#ffffff;
     color:#000;
     box-shadow: 0 .01rem .02rem 0 rgba(189,189,189,0.25);
+    z-index:99 !important
 }
 header{
     font-size:.17rem;

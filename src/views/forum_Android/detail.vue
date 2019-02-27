@@ -1,16 +1,16 @@
 <template>
     <div class="page">
-        <mt-header fixed :title="dataList.moduleName">
+        <!-- <mt-header fixed :title="dataList.moduleName">
             <router-link to="" tag='li' @click.native='goBack' slot="left">
-                <!-- <mt-button icon="back"></mt-button> -->
+                <mt-button icon="back"></mt-button>
             </router-link>
-        </mt-header>
+        </mt-header> -->
         <div class="main">
             <div class="iconTag"></div>
             <div class="title">{{dataList.topicTitle}}</div>
             <div class="userInfo">
                 <div class="userBox">
-                    <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+dataList.userIcon" alt="" class="user">
+                    <img :src="dataList.userIcon" alt="" class="user">
                     <div class="text">{{dataList.userName}}</div>
                 </div>
                 <span>{{createTime}}</span>
@@ -20,13 +20,17 @@
                 <img v-for="list in topicPic" :key="list.id" :src="list" alt="">
             </div>
         </div>
-        <div class="comment">
+        <div
+        v-infinite-scroll="loadMore"
+        infinite-scroll-disabled="loading"
+        infinite-scroll-distance="30"
+         class="comment">
             <div class="totalNum">{{dataList.topicCommentsNumber}}条评论</div>
             <div v-for="(list, index) in commentsList" :key="list.id" class="list_">
                 <div @click="reply(index)" class="father">
                     <div class="user">
                         <div class="info_">
-                            <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+list.userIcon" alt="">
+                            <img :src="list.userIcon" alt="">
                             <div class="name_">{{list.userName}}</div>
                         </div>
                         <div class="time">{{timeComputed[index]}}</div>
@@ -37,7 +41,7 @@
                 <div v-for="item in list.childModelList" :key="item.id" v-if="list.childModelList" class="child_">
                     <div class="user">
                         <div class="info_">
-                            <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+item.userIcon" alt="">
+                            <img :src="item.userIcon" alt="">
                             <div class="name_">{{item.userName}}</div>
                         </div>
                         <div class="time">{{getInit(item)}}</div>
@@ -49,13 +53,14 @@
         </div>
         <div class="fixed">
             <div class="input_">
-                <input
+                <!-- <input
                 ref="content"
                 type="text"
                 :placeholder="demoText"
-                v-model="commentsContent">
+                v-model="commentsContent"> -->
+                <textarea @input="getStyle" :placeholder="demoText" v-model="commentsContent" ref="content" name="" id="textList"></textarea>
             </div>
-            <div @click="addNote" :class="commentsContent?'actived':'btn'">发送</div>
+            <span @click="addNote" :class="commentsContent?'actived':'btn'">发送</span>
         </div>
     </div>
 </template>
@@ -65,28 +70,40 @@ import { Toast } from 'mint-ui'
 export default {
     data () {
         return {
+            userAgent: null,
             topicId: '',
-            userId: localStorage.getItem('userId'),
+            userId: sessionStorage.getItem('userId'),
             dataList: [],
             topicPic: '',
             createTime: '',
             // 评论
             commentsList: [],
             timeComputed: [],
+            oldTime: '',
             status: false,
             // 评论内容
             commentsContent: '',
             commentsId: null,
-            demoText: '点击这里说两句…'
+            demoText: '点击这里说两句…',
+            textLength: '',
+            loading :true,
+            num: 1,
+            pageSize:10
         }
+    },
+     beforeCreate () {
+        document.querySelector('#app').style.cssText = 'margin-top:0;'
+        document.title = ''
     },
     mounted () {
         let userAgent = navigator.userAgent.toLowerCase()
-        if (userAgent.indexOf('app/android') != -1) {
+        this.userAgent = userAgent
+        if (userAgent.indexOf('app/android') != -1 || userAgent.indexOf('xmd.app.ios') != -1) {
                 this.getParmas() 
             } else {
                 this.topicId = this.$route.query.topicId
         }
+        document.querySelector('#textList').style.height = 0
         // this.topicId = this.$route.query.topicId
         this.getData()
     },
@@ -95,10 +112,21 @@ export default {
             return function(item) {
                 let nowTime = new Date().getTime()
                 let Difference,time = ''
+                if (localStorage.getItem('nowTime') === null) {
+                    localStorage.setItem('nowTime',nowTime)
+                    this.oldTime = nowTime
+                } else {
+                    this.oldTime = localStorage.getItem('nowTime')
+                }
+                console.log(this.oldTime)
                 //计算时间
                 Difference = ((nowTime - new Date(item.createTime).getTime())/1000)/60
                 if(0<Difference&&Difference<=60){
-                    time = Math.floor(Difference)+'分钟前'
+                    if (0<Difference&&Difference<1) {
+                        time = '刚刚'
+                    } else {
+                        time = Math.floor(Difference)+'分钟前'
+                    }
                 }else if(1<(Difference/60)&&Difference/60<=24){
                     time = Math.floor(Difference/60)+'小时前'
                 }
@@ -118,10 +146,24 @@ export default {
             axios.post('/tribune/topic/topicDetail', {
                 userId: '',
                 topicId: this.topicId,
-                pageNumber: 1,
-                pageSize: 20
+                pageNumber: this.num,
+                pageSize: this.pageSize
             }).then(res => {
-                this.dataList = res.data.data
+                if (this.num === 1) {
+                    this.dataList = res.data.data
+                    this.loading  = false
+                } else {
+                    if (res.data.data.commentsList !== null) {
+                        this.dataList.commentsList = this.dataList.commentsList.concat(res.data.data.commentsList)
+                        // console.log(this.dataList.commentsList,this.num)
+                         if (res.data.data.commentsList.length < this.pageSize) {
+                            this.loading = true
+                        } else {
+                            this.loading  = false
+                        }
+                    }
+                }
+                document.title = this.dataList.moduleName
                 let str = document.querySelector('.text_in')
                 str.innerHTML = this.dataList.topicContent
                 this.createTime = new Date(this.dataList.createTime)
@@ -151,38 +193,72 @@ export default {
             }
             console.log('click',this.commentsId)
         },
+        getStyle () {
+            this.textHeight = Math.ceil(this.commentsContent.replace(/[^\x00-\xff]/g,"aa").length/36)*0.16
+            if (this.textHeight>=0.8) {
+                this.textHeight = '0.8rem'
+            }
+            document.querySelector('#textList').style.height = this.textHeight+'rem'
+            // this.$refs.content.height = this.$refs.content.scrollHeight
+            console.log(this.$refs.content.offsetHeight,document.querySelector('#textList').style.height,this.commentsContent.replace(/[^\x00-\xff]/g,"aa").length,this.textHeight)
+        },
         // 评论
         addNote () {
             // 没登录跳转登陆
-            if (localStorage.getItem('userId') === '') {
-                window.xingMeiDai.login()
+            // this.getParmas()
+            let android = this.userAgent.indexOf('app/android')
+            let ios = this.userAgent.indexOf('xmd.app.ios')
+            if (this.userId == '') {
+                android != -1 ? window.xingMeiDai.appLogin() : JKEventHandler.callNativeFunction('toLogin',null,null,null)
+                // window.xingMeiDai.appLogin()
             } else {
-                this.userId = localStorage.getItem('userId')
                 let shtml = ''
-                console.log(this.commentsId)
-                axios.post('/tribune/comments/addComments', {
-                    userId: this.userId,
-                    topicId: this.topicId,
-                    commentsContent: this.commentsContent,
-                    commentsId: this.commentsId
-                }).then(res => {
-                    let score = res.data.data
-                    if (res.data.data.flag) {
+                console.log(this.commentsId,this.userId)
+                // this.userId = localStorage.getItem('userId')
+                // 添加回帖30s限制
+                let nowDate = new Date().getTime()
+                if (nowDate-this.oldTime<=30*1000) {
+                    Toast({
+                        message: '回帖频率过快，等会吧~',
+                        position: 'center',
+                        duration: 2500
+                    })
+                    return false
+                } else {
+                    if (this.commentsContent.length<6) {
                         Toast({
-                            message: res.data.msg+'，获得'+score.integralNumber+'积分',
+                            message: '回帖最少6个字符',
                             position: 'center',
                             duration: 2500
                         })
+                        return false
                     } else {
-                        Toast({
-                            message: res.data.msg,
-                            position: 'center',
-                            duration: 2500
+                        var pramsData = {userId: this.userId,topicId: this.topicId,commentsContent: this.commentsContent}
+                        if (this.commentsId !== null) {
+                            pramsData.commentsId = this.commentsId
+                        }
+                        console.log(pramsData)
+                        axios.post('/tribune/comments/addComments', pramsData).then(res => {
+                            let score = res.data.data
+                            this.oldTime = new Date().getTime()
+                            if (res.data.data.flag) {
+                                Toast({
+                                    message: res.data.msg+'，获得'+score.integralNumber+'积分',
+                                    position: 'center',
+                                    duration: 2500
+                                })
+                            } else {
+                                Toast({
+                                    message: res.data.msg,
+                                    position: 'center',
+                                    duration: 2500
+                                })
+                            }
+                            this.commentsContent = ''
+                            this.getData()
                         })
                     }
-                    this.commentsContent = ''
-                    this.getData()
-                })
+                }    
             }
         },
         // 显示时间处理
@@ -212,7 +288,7 @@ export default {
         },
         // 链接获取参数
         getParmas () {
-            if (location.href.split('?')[1] !== undefined) {
+            if (location.href.split('?')[1] != undefined) {
                 let URLParams = []
                 let params = location.href.split('?')[1].split('&')
                 for (let i = 0; i < params.length; i++) {
@@ -221,8 +297,30 @@ export default {
                 }
                 // 节点
                 this.topicId = URLParams['topicId']
-                console.log(this.topicId)
+                if (sessionStorage.getItem('userId') != undefined) {
+                    this.userId = sessionStorage.getItem('userId') 
+                } else {
+                    this.userId = URLParams['userId']
+                }
             } 
+        },
+        getUserId () {
+            let URLParams = []
+            let params = location.href.split('?')[1].split('&')
+            for (let i = 0; i < params.length; i++) {
+                let aParam = params[i].split('=')
+                URLParams[aParam[0]] = aParam[1]
+            }
+            // 节点
+            this.userId = URLParams['userId']
+            sessionStorage.setItem('userId', this.userId)
+        },
+        loadMore() {
+            this.loading = true
+            setTimeout(() => {
+                this.num++
+                this.getData()
+            }, 500)
         }
     }
 }
@@ -359,7 +457,7 @@ header{
     bottom:0;
     left:0;
     width:100%;
-    height:.5rem;
+    min-height:.5rem;
     border-top: .01rem solid #f4f4f4;
     display: flex;
     justify-content: space-between;
@@ -369,18 +467,41 @@ header{
         width:3rem;
         display: flex;
         align-items: center;
-        input{
+        // input{
+        //     width:100%;
+        //     height:.35rem;
+        //     font-size:.15rem;
+        //     padding-left:.1rem;
+        //     border-radius: .07rem;
+        //     background: #F6F6F6;
+        //     margin-left:.16rem;
+        // }
+        textarea{
             width:100%;
-            height:.35rem;
+            min-height:.15rem;
             font-size:.15rem;
+            padding: .1rem 0;
             padding-left:.1rem;
+            margin:.1rem 0;
+            resize:none;
             border-radius: .07rem;
             background: #F6F6F6;
             margin-left:.16rem;
+            &::-webkit-input-placeholder{
+                line-height: .15rem;
+            }
+            &::-webkit-scrollbar {  
+                display: none!important;
+                width: 0;  
+                height: 0;  
+            }
         }
     }
-    .btn,.actived{
+    span{
+        display: inline-block;
         font-size:.15rem;
+    }
+    .btn,.actived{
         color:#B1B1B1;
         margin-right: .19rem;
     }

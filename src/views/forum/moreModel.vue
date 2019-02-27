@@ -1,6 +1,6 @@
 <template>
     <div>
-        <mt-header fixed title="全部模块">
+        <mt-header v-if="showHeader" fixed title="全部模块">
             <router-link to="" tag='li' @click.native='goBack' slot="left">
                 <mt-button icon="back"></mt-button>
             </router-link>
@@ -9,7 +9,7 @@
             <div class="title">贷款专区</div>
             <div @click="goModule(index)" v-for="(list, index) in moduleList" :key="list.id" class="list">
                 <div class="left">
-                    <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+list.moduleIconUrl" alt="" class="icon"/>
+                    <img :src="list.moduleIconUrl" alt="" class="icon"/>
                     <div class="icon_text">{{list.moduleName}}</div>
                 </div>
                 <div class="right">
@@ -25,10 +25,19 @@ import axios from '../../../config/http'
 export default {
     data () {
         return {
-            moduleList: []
+            moduleList: [],
+            showHeader: false
         }
     },
+    beforeCreate () {
+        document.querySelector('#app').style.cssText = 'margin-top:0;'
+        document.title = ''
+    },
+    created () {
+        this.getTitle()
+    },
     mounted () {
+        document.title = '全部模块'
         this.moreModule()
     },
     methods: {
@@ -40,6 +49,7 @@ export default {
                 pageSize: 10
             }).then(res => {
                 this.moduleList = res.data.data
+                document.title = '全部模块'
             })
         },
         // 跳转对应的模块主页
@@ -48,7 +58,23 @@ export default {
         },
         // 返回首页
         goBack () {
-            this.$router.push({path: '/forum'})
+            // this.$router.push({path: '/forum'})
+            let userAgent = navigator.userAgent.toLowerCase()
+            if (userAgent.indexOf('app/android') != -1) {
+                    this.$router.push({path: '/forum_?'+sessionStorage.getItem('url')})
+                } else {
+                    this.$router.push({path: '/forum'})
+            }
+        },
+        // 获取title
+        getTitle () {
+            document.title = ''
+            let userAgent = navigator.userAgent.toLowerCase()
+            if (userAgent.indexOf('app/android') != -1) {
+                this.showHeader = false
+            } else {
+                this.showHeader = true
+            }
         }
     }
 }

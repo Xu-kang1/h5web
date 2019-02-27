@@ -10,7 +10,7 @@
             <div class="title">{{dataList.topicTitle}}</div>
             <div class="userInfo">
                 <div class="userBox">
-                    <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+dataList.userIcon" alt="" class="user">
+                    <img :src="dataList.userIcon" alt="" class="user">
                     <div class="text">{{dataList.userName}}</div>
                 </div>
                 <span>{{createTime}}</span>
@@ -29,7 +29,7 @@
                 <div @click="reply(index)" class="father">
                     <div class="user">
                         <div class="info_">
-                            <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+list.userIcon" alt="">
+                            <img :src="list.userIcon" alt="">
                             <div class="name_">{{list.userName}}</div>
                         </div>
                         <div class="time">{{timeComputed[index]}}</div>
@@ -40,7 +40,7 @@
                 <div v-for="item in list.childModelList" :key="item.id" v-if="list.childModelList" class="child_">
                     <div class="user">
                         <div class="info_">
-                            <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+item.userIcon" alt="">
+                            <img :src="item.userIcon" alt="">
                             <div class="name_">{{item.userName}}</div>
                         </div>
                         <div class="time">{{getInit(item)}}</div>
@@ -52,13 +52,14 @@
         </div>
         <div class="fixed">
             <div class="input_">
-                <input
+                <!-- <input
                 ref="content"
                 type="text"
                 :placeholder="demoText"
-                v-model="commentsContent">
+                v-model="commentsContent"> -->
+                 <textarea @input="getStyle" :placeholder="demoText" v-model="commentsContent" ref="content" name="" id="textList"></textarea>
             </div>
-            <div @click="addNote" :class="commentsContent?'actived':'btn'">发送</div>
+             <span @click="addNote" :class="commentsContent?'actived':'btn'">发送</span>
         </div>
     </div>
 </template>
@@ -84,12 +85,14 @@ export default {
             // 评论内容
             commentsContent: '',
             commentsId: null,
-            demoText: '点击这里说两句…'
+            demoText: '点击这里说两句…',
+            textLength: ''
         }
     },
     mounted () {
         this.topicId = this.$route.query.topicId
         let _this = this
+        document.querySelector('#textList').style.height = 0
         // this.$refs.msgBox.addEventListener('scroll',  _this.handleScroll, true)
         this.getData()
     },
@@ -167,6 +170,15 @@ export default {
                 this.commentsId = null
             }
             console.log('click',this.commentsId)
+        },
+        getStyle () {
+            this.textHeight = Math.ceil(this.commentsContent.replace(/[^\x00-\xff]/g,"aa").length/36)*0.16
+            if (this.textHeight>=0.8) {
+                this.textHeight = '0.8rem'
+            }
+            document.querySelector('#textList').style.height = this.textHeight+'rem'
+            // this.$refs.content.height = this.$refs.content.scrollHeight
+            console.log(this.$refs.content.offsetHeight,document.querySelector('#textList').style.height,this.commentsContent.replace(/[^\x00-\xff]/g,"aa").length,this.textHeight)
         },
         // 评论
         addNote () {
@@ -381,18 +393,41 @@ header{
         width:3rem;
         display: flex;
         align-items: center;
-        input{
+        // input{
+        //     width:100%;
+        //     height:.35rem;
+        //     font-size:.15rem;
+        //     padding-left:.1rem;
+        //     border-radius: .07rem;
+        //     background: #F6F6F6;
+        //     margin-left:.16rem;
+        // }
+        textarea{
             width:100%;
-            height:.35rem;
+            min-height:.15rem;
             font-size:.15rem;
+            padding: .1rem 0;
             padding-left:.1rem;
+            margin:.1rem 0;
+            resize:none;
             border-radius: .07rem;
             background: #F6F6F6;
             margin-left:.16rem;
+            &::-webkit-input-placeholder{
+                line-height: .15rem;
+            }
+            &::-webkit-scrollbar {  
+                display: none!important;
+                width: 0;  
+                height: 0;  
+            }
         }
     }
-    .btn,.actived{
+    span{
+        display: inline-block;
         font-size:.15rem;
+    }
+    .btn,.actived{
         color:#B1B1B1;
         margin-right: .19rem;
     }

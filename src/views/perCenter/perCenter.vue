@@ -6,15 +6,13 @@
                 <div>{{phone.substring(0,4)+'****'+phone.substring(8,11)}}</div>
             </div>
         </div>
-        <mt-cell
-        title="关于我们"
-        to="/aboutUs"
-        is-link>
-        </mt-cell>
+        <mt-cell title="关于我们" to="/aboutUs" is-link></mt-cell>
+        
         <mt-cell class="vision" title="当前版本">{{version}}</mt-cell>
-        <div @click="signOut" class="off">
-            退出登录
-        </div>
+        
+        <mt-cell title="意见反馈" :to="{path: '/FeedBack',query: {mobile: phone}}" is-link></mt-cell>
+        
+        <div @click="signOut" class="off">退出登录</div>
     </div>
 </template>
 <script>
@@ -22,10 +20,17 @@ export default {
     data () {
         return {
             phone: '',
-            version: ''
+            version: '',
+            userId: ''
         }
     },
+    created(){
+    	window.title = '个人中心'
+    },
     mounted () {
+    	if(this.$route.query.id && this.$route.query.id != ''){
+    		localStorage.setItem('userId',this.$route.query.id)
+    	}
         this.getData()
     },
     methods: {
@@ -40,7 +45,7 @@ export default {
             this.phone = URLParams['phone']
             this.version = URLParams['version']
         },
-         signOut () {
+        signOut () {
             if (JsBridge) {
                 JsBridge.h5ToNative_logout()
                 console.log('点击')

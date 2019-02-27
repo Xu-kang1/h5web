@@ -1,31 +1,50 @@
 <template>
-    <div>
-        <mt-header fixed title="签到规则">
+    <div class="box">
+        <!-- <mt-header fixed title="积分规则">
             <router-link to="/signIn" slot="left">
                 <mt-button icon="back"></mt-button>
             </router-link>
-        </mt-header>
+        </mt-header> -->
         <div class="banner">
             <img src="../../../static/rule_bg.png" alt="">
-            <span class="bigSize">签到规则</span>
+            <span class="bigSize">积分规则</span>
         </div>
         <div class="title">
             <span class="icon_rule"></span>
-            <span class="">签到规则</span>
+            <span class="">积分价值：100积分=1元</span>
         </div>
         <div class="rules">
             <div class="lists">
                 <!-- <span class="cricle"></span> -->
-                <p><span class="cricle"></span>用户每天在积分商城进行签到时，都会获得一定的积分奖励随着天数的增多，获得的积分也会越来越多。</p>
-                <p><span class="cricle"></span>每次连续累计签到的周期为七天，即从第一次签到日算起七日内，连续7日签到可获得10、20、30、40、50、60、70积分，第8日开始每天签到可获得70积分，如中间断签将重新从0计算，并重新累计天数。</p>
-                <p class="notice_">注：若出现违规行为（如作弊、恶意套取等行为）有权取消其参与资格。</p>
+                <div><span class="cricle"></span>
+                <span class="title_">签到领积分：</span>
+                <p>用户可以每日前往签到页面进行签到，首日可领取1积分，连续签到可得3、5、7、10积分，连续签到每日可领取积分上限为10积分；若签到中断则从新计算，不计入等级积分，每月可有3次补签机会；</p>
+                </div>
+                <div><span class="cricle"></span>
+                    <span class="title_">论坛发帖领积分：</span>
+                    <p>在论坛发帖一次，将获得5积分，每日上限20积分，回帖可得1积分，每日上限10积分，同时优质内容被采纳，加精直接获得50积分，无上限；</p>
+                </div>
+                <div><span class="cricle"></span>
+                    <span class="title_">点击产品赚积分：</span>
+                    <p>每点击1个产品获得15积分，日上限75积分，每个产品只有一次获取积分的机会；</p>
+                </div>
+                <div><span class="cricle"></span>
+                    <span class="title_">分享每日新品赚积分：</span>
+                    <p>在每日新品页分享每日新品给好友即可赚积分，每次分享可得10积分，日上限为50积分。</p>
+                </div>
             </div>
         </div>
     </div>
 </template>
 <script>
 export default {
-    
+    data () {
+        return {}
+    },
+    beforeCreate () {
+        document.querySelector('#app').style.cssText = 'margin-top:0;'
+        document.title = '积分规则'
+    },
 }
 </script>
 <style lang="less" scoped>
@@ -52,10 +71,17 @@ div{
         position: absolute;
         top:.45rem;
         left:.38rem;
-        font-size:.3rem;
+        font-size:.24rem;
         color:#ffffff;
         // font-weight: bold;
     }
+}
+.box{
+    position: absolute;
+    top:0;
+    width:100%;
+    height:100%;
+    background: #ffffff;
 }
 .title{
     margin-top: .08rem;
@@ -69,18 +95,28 @@ div{
         width:.17rem;
         height:.16rem;
         margin-right:.04rem;
-        background:url('../../assets/icon_.png') no-repeat center;
+        background:url('../../assets/jifen.png') no-repeat center;
         background-size: 100% 100%;
     }
 }
 .lists{
-    p{
-        font-size:.13rem;
+    div{
+        font-size:.15rem;
         line-height: .19rem;
         text-align: left;
         padding:0 .22rem;
         position: relative;
-        margin-bottom:.1rem;
+        margin-bottom:.06rem;
+        .title_{
+            font-size:.14rem;
+            margin-bottom:.02rem;
+            display: inline-block;
+        }
+        p{
+            font-size:.12rem;
+            color:#999999;
+            line-height: .19rem;
+        }
         .cricle{
             position: absolute;
             display: inline-block;

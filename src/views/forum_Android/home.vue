@@ -1,10 +1,10 @@
 <template>
     <div class="page" v-cloak>
-        <mt-header fixed title="论坛">
+        <!-- <mt-header fixed title="论坛">
             <router-link to="" tag='li' @click.native='goBack' slot="left">
-                <!-- <mt-button icon="back"></mt-button> -->
+                <mt-button icon="back"></mt-button>
             </router-link>
-        </mt-header>
+        </mt-header> -->
         <div 
         v-infinite-scroll="loadMore"
         infinite-scroll-disabled="loading"
@@ -42,7 +42,7 @@
                             <img v-show="i<3" v-for="(item, i) in arrImg[index]" :key="item.id" :src="item" alt="">
                         </div>
                         <div class="userInfo">
-                            <img :src="'http://www.xingmeidai.com/portal/file/downloadImage?n='+list.userIcon" alt="" class="user">
+                            <img :src="list.userIcon" alt="" class="user">
                             <div class="text">{{list.userName}}<span>#{{list.moduleName}}#</span></div>
                         </div>
                     </div>
@@ -92,13 +92,18 @@ export default {
     //         this.getData()
     //     })
     // },
+    beforeCreate () {
+        document.querySelector('#app').style.cssText = 'margin-top:0;'
+        document.title = ''
+    },
     created () {
+        document.title = '论坛'
         this.$nextTick(() => {
             this.getData()
         })
     },
     mounted () {
-        let _this = this
+        // let _this = this
         this.getUserId()
         this.moreModule()
     },
@@ -118,6 +123,7 @@ export default {
         },
         // 跳转帖子详情
         goDetail (index) {
+            this.getUserId()
             axios.post('/tribune/topic/addView', {
                 topicId: this.lists[index].topicId
             }).then(res => {})
@@ -125,16 +131,18 @@ export default {
         },
         // 发帖
         goAdd () {
-            if (localStorage.getItem('userId') === '') {
-                window.xingMeiDai.login()
+            this.getUserId()
+            if (this.userId == '') {
+                window.xingMeiDai.appLogin()
             } else {
                 this.$router.push({path: '/addCard_'})
             }
         },
         // 我的
         goMsg () {
-            if (localStorage.getItem('userId') === '') {
-                window.xingMeiDai.login()
+            this.getUserId()
+            if (this.userId == '') {
+                window.xingMeiDai.appLogin()
             } else {
                 this.$router.push({path: '/message_'})
             }
@@ -210,18 +218,21 @@ export default {
                 this.moduleList = res.data.data
             })
         },
-        // 获取链接参数
         getUserId () {
             let URLParams = []
-            let params = location.href.split('?')[1].split('&')
-            for (let i = 0; i < params.length; i++) {
-                let aParam = params[i].split('=')
-                URLParams[aParam[0]] = aParam[1]
+            if (location.href.split('?')[1] != undefined) {
+            let url = location.href.split('?')[1]
+            sessionStorage.setItem('url', url)
+                let params = location.href.split('?')[1].split('&')
+                for (let i = 0; i < params.length; i++) {
+                    let aParam = params[i].split('=')
+                    URLParams[aParam[0]] = aParam[1]
+                }
+                // 节点
+                this.userId = URLParams['userId']
+                sessionStorage.setItem('userId', this.userId)
+                console.log(this.userId)
             }
-            // 节点
-            this.userId = URLParams['userId']
-            localStorage.setItem('userId', this.userId)
-            console.log(this.userId)
         },
         loadMore() {
             this.loading = true
@@ -259,18 +270,21 @@ header{
     height: 1rem;
     margin-top:.01rem;
     padding: 0 .12rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    // display: flex;
+    // align-items: center;
+    // justify-content: space-between;
     .bgColor();
     .nav_list{
-        width:.84rem;
+        width:23%;
         height:.68rem;
         border-radius: .06rem;
         position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        margin: .16rem 1%;
+        // margin-right:2%;
+        float: left;
+        // display: flex;
+        // align-items: center;
+        // justify-content: center;
         img{
             display: block;
             // opacity: 0.8;
@@ -281,13 +295,20 @@ header{
             height:100%;
         }
         .text_{
+            width:100%;
             position: absolute;
             z-index:1;
             font-weight:600;
             font-size:.13rem;
-            line-height: 100%;
+            line-height: .68rem;
             color:#ffffff;
         }
+    }
+    .nav_list:nth-child(1){
+        margin-left:0;
+    }
+    .nav_list:last-child{
+        margin-right:0;
     }
 }
 .contain{

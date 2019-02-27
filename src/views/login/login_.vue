@@ -22,7 +22,7 @@
             <input class="ipt" type="number" oninput="if(value.length>11)value=value.slice(0,11)" onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))" v-model="phone" maxlength="11" placeholder="请输入手机号">
             <div @click="getMoney" class="btn" id="btn">立即申请</div>
         </div>
-        <div class="recored">北京星美互联有限公司 | 京ICP备18037794号 -1</div>
+        <div class="recored">市场有风险，借款需谨慎  实际借款金额因个人情况/资质决定<br/>北京星美互联有限公司 | 京ICP备18037794号 -1</div>
        <!-- <div class="bottom"></div> -->
        <!-- 弹窗 -->
        <div v-if="showMask" class="mask">
@@ -138,9 +138,19 @@ export default {
                     if (res.data.success) {
                         if (isiOS) {
                             window.location.href = 'http://www.xingmeidai.com/xmd/'
-                        } else {
-                            // this.$router.replace({path: '/group'})
-                            window.location.href = 'http://xingmeidai.com/download/app-release-xmd.apk'
+                        } else { // 可改为switch
+                            if (this.channelCode === 'eGluZ21laWRhaV9hcHBfc2hlbm1h') {
+                                window.location.href = 'http://www.xingmeidai.com/download/app-release-xmd-shenma.apk'
+                            } else if (this.channelCode === 'eGluZ21laWRhaV9hcHBfa3VhaXNob3U') { //快手渠道
+                                window.location.href = 'http://www.xingmeidai.com/download/app-release-xmd-kuaishou.apk'
+                            } else if (this.channelCode === 'eGluZ21laWRhaV9hcHBfc291Z291') { //搜狗渠道
+                                window.location.href = 'http://www.xingmeidai.com/download/app-release-xmd-sougou.apk'
+                            } else if (this.channelCode.indexOf('dWNfYnJvd3Nlcl8') !=-1) {
+                                window.location.href = 'http://www.xingmeidai.com/download/app-release-xmd-uc.apk'
+                            } else {
+                                // this.$router.replace({path: '/group'})
+                                window.location.href = 'http://xingmeidai.com/download/app-release-xmd.apk'
+                            }
                         }
                     } else {
                         Toast({
@@ -401,13 +411,14 @@ export default {
     }
 }
 .recored{
-    font-size:.1rem;
+    font-size:.11rem;
     position: absolute;
     width:100%;
     margin: 0 auto;
     bottom:.3rem;
     color:#ffd48f;
-    line-height:.5rem;
+    line-height:.2rem;
+    transform: scale(0.92);
 }
 #app .sheet/deep/.actived{
     color:#b2b2b2;

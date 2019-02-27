@@ -22,7 +22,7 @@
             <input class="ipt" type="number" oninput="if(value.length>11)value=value.slice(0,11)" onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))" v-model="phone" maxlength="11" placeholder="请输入手机号">
             <div @click="getMoney" class="btn" id="btn">立即申请</div>
         </div>
-        <div class="recored">北京星美互联有限公司 | 京ICP备18037794号 -1</div>
+        <div class="recored">市场有风险，借款需谨慎  实际借款金额因个人情况/资质决定<br/>北京星美互联有限公司 | 京ICP备18037794号 -1</div>
        <!-- <div class="bottom"></div> -->
        <!-- 弹窗 -->
        <div v-if="showMask" class="mask">
